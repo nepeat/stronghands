@@ -390,6 +390,25 @@ string FormatMoney(int64 n, bool fPlus)
     return str;
 }
 
+string FormatMoney(uint64_t n, bool fPlus)
+{
+    // Note: not using straight sprintf here because we do NOT want
+    // localized number formatting.
+    uint64_t quotient = n/COIN;
+    uint64_t remainder = n%COIN;
+    string str = strprintf("%" PRI64d ".%06" PRI64d, quotient, remainder);
+
+    // Right-trim excess 0's before the decimal point:
+    int nTrim = 0;
+    for (int i = str.size()-1; (str[i] == '0' && isdigit(str[i-2])); --i)
+        ++nTrim;
+    if (nTrim)
+        str.erase(str.size()-nTrim, nTrim);
+
+    if (fPlus && n > 0)
+        str.insert((unsigned int)0, 1, '+');
+    return str;
+}
 
 bool ParseMoney(const string& str, int64& nRet)
 {

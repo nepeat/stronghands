@@ -1113,7 +1113,7 @@ public:
     CBigNum bnChainTrust; // stronghands: trust score of block chain
     int nHeight;
     int64 nMint;
-    int64 nMoneySupply;
+    uint64_t nMoneySupply;
 
     unsigned int nFlags;  // stronghands: block index flags
     enum  
