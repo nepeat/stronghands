@@ -10,16 +10,6 @@ CONFIG += qt_framework
 QT += core gui network
 CONFIG += link_pkgconfig
 
-isEmpty(BDB_LIB_SUFFIX) {
-	# !macx:unix:BDB_LIB_SUFFIX = -5.3
-	windows:macx:BDB_LIB_SUFFIX = -4.8
-}
-
-BDB_INCLUDE_PATH=/home/happy/db-4.8.30.NC/build_mxe
-BDB_LIB_PATH=/home/happy/db-4.8.30.NC/build_mxe
-
-QRENCODE_LIB_PATH=/home/happy/qrencode-3.4.4/.libs
-QRENCODE_INCLUDE_PATH=/home/happy/qrencode-3.4.4/
 
 !windows:!unix {
     CONFIG += static
@@ -344,11 +334,12 @@ OTHER_FILES += \
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    windows:BOOST_LIB_SUFFIX = -mt
+    win32:BOOST_LIB_SUFFIX = -mt
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
-    BOOST_THREAD_LIB_SUFFIX = _win32$$BOOST_LIB_SUFFIX
+    macx:BOOST_THREAD_LIB_SUFFIX = $$BOOST_LIB_SUFFIX
+    win32:BOOST_THREAD_LIB_SUFFIX = _win32$$BOOST_LIB_SUFFIX
 }
 
 isEmpty(BDB_LIB_PATH) {
