@@ -1172,6 +1172,12 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64> >& vecSend, CW
                     scriptChange = pcoin.first->vout[pcoin.second].scriptPubKey;
                 }
 
+		// the following prevents spending a transaction where inputs accumulate over MAX_MONYEY
+		// it would be useful to display an error message in qt describing the situation
+                if (nValueIn > MAX_MONEY)
+                	return error("Transaction creation failed : total inputs exceed MAX_MONEY");  // gives generic error, sends msg to debug
+	
+		       	 		
                 int64 nChange = nValueIn - nValue - nFeeRet;
                 // if sub-cent change is required, the fee must be raised to at least MIN_TX_FEE
                 // or until nChange becomes zero

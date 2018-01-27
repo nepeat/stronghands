@@ -197,6 +197,16 @@ void SendCoinsDialog::on_sendButton_clicked()
             arg(BitcoinUnits::formatWithUnit(BitcoinUnits::BTC, sendstatus.fee)),
             QMessageBox::Ok, QMessageBox::Ok);
         break;
+    case WalletModel::AmountExceedsMaxMoney:
+        QMessageBox::warning(this, tr("Send Coins"),
+            tr("Send value exceeds MaxMoney"),
+            QMessageBox::Ok, QMessageBox::Ok);
+        break;
+    case WalletModel::AmountWithFeeExceedsMaxMoney:
+        QMessageBox::warning(this, tr("Send Coins"),
+            tr("Send value exceeds MaxMoney when the transaction fee is included"),
+            QMessageBox::Ok, QMessageBox::Ok);
+        break;
     case WalletModel::DuplicateAddress:
         QMessageBox::warning(this, tr("Send Coins"),
             tr("Duplicate address found, can only send to each address once in one send operation"),
