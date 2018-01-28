@@ -28,6 +28,8 @@ class CInv;
 class CRequestTracker;
 class CNode;
 
+static const unsigned int FORK_TIME = 1518825600; // Saturday, February 17, 2018 12:00:00 AM GMT // 
+
 static const unsigned int MAX_BLOCK_SIZE = 1000000;
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
 static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
