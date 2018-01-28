@@ -471,7 +471,7 @@ bool CTransaction::CheckTransaction() const
         // stronghands: enforce minimum output amount
         if ((!txout.IsEmpty()) && txout.nValue < MIN_TXOUT_AMOUNT)
             return DoS(100, error("CTransaction::CheckTransaction() : txout.nValue below minimum"));
-        if (txout.nValue > MAX_MONEY)
+        if (txout.nValue > ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY))
             return DoS(100, error("CTransaction::CheckTransaction() : txout.nValue too high"));
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
@@ -540,12 +540,12 @@ int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
     if (nBlockSize != 1 && nNewBlockSize >= MAX_BLOCK_SIZE_GEN/2)
     {
         if (nNewBlockSize >= MAX_BLOCK_SIZE_GEN)
-            return MAX_MONEY;
+            return ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY);
         nMinFee *= MAX_BLOCK_SIZE_GEN / (MAX_BLOCK_SIZE_GEN - nNewBlockSize);
     }
 
     if (!MoneyRange(nMinFee))
-        nMinFee = MAX_MONEY;
+        nMinFee = ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY);
     return nMinFee;
 }
 
