@@ -936,12 +936,12 @@ int64 GetProofOfWorkReward(unsigned int nBits)
 {
 	int64 nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK;  // 9999 coins
 	
-	if (nBestHeight > 49000)
+	if (nBestHeight > 490000)
 	{
 		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2 * 2;  // 500,000 coins
 	}
 	
-	else if (nBestHeight > 66280)
+	else if (nBestHeight > 510000)
 	{
 		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2;  // 250,000 coins
 	}
@@ -993,12 +993,12 @@ int64 GetProofOfStakeReward_V2(int64 nCoinAge)
 	static int64 nMaxMintProofOfStake = 1500000000 * COINS; // 1 billion coins
     int64 nSubsidy = min(nMaxMintProofOfStake, (nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear));    
     
-	if (nBestHeight > 49000)
+	if (nBestHeight > 494000)
 	{
 		nSubsidy = 500000 * COIN;  // 500,000 coins
 	}
 	
-	else if (nBestHeight > 66280)
+	else if (nBestHeight > 510000)
 	{
 		nSubsidy = 250000 * COIN;  // 500,000 coins
 	}    
