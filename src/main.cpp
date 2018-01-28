@@ -990,7 +990,8 @@ int64 GetProofOfStakeReward_V1(int64 nCoinAge)
 int64 GetProofOfStakeReward_V2(int64 nCoinAge)
 {
     static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
-    int64 nSubsidy = nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear;    
+	static int64 nMaxMintProofOfStake = 1500000000 * COINS; // 1 billion coins
+    int64 nSubsidy = min(nMaxMintProofOfStake, (nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear));    
     
 	if (nBestHeight > 49000)
 	{
@@ -1011,9 +1012,9 @@ int64 GetProofOfStakeReward(int64 nCoinAge)
 {
 	int64_t nReward = 0;
 	if(nTime > FORK_TIME)
-		nReward = GetProofOfStakeRewardV2(nCoinAge);
+		nReward = GetProofOfStakeReward_V2(nCoinAge);
 	else
-		nReward = GetProofOfStakeRewardV1(nCoinAge);
+		nReward = GetProofOfStakeReward_V1(nCoinAge);
 	
 	return nReward;
 }
