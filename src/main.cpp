@@ -934,7 +934,19 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 
 int64 GetProofOfWorkReward(unsigned int nBits)
 {
-    CBigNum bnSubsidyLimit = MAX_MINT_PROOF_OF_WORK;
+	int64 nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK;  // 9999 coins
+	
+	if (nBestHeight > 49000)
+	{
+		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2 * 2;  // 500,000 coins
+	}
+	
+	else if (nBestHeight > 66280)
+	{
+		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2;  // 250,000 coins
+	}
+	
+    CBigNum bnSubsidyLimit = nMaxMintProofOfWork;
     CBigNum bnTarget;
     bnTarget.SetCompact(nBits);
     CBigNum bnTargetLimit = bnProofOfWorkLimit;
@@ -965,7 +977,7 @@ int64 GetProofOfWorkReward(unsigned int nBits)
 }
 
 // stronghands: miner's coin stake is rewarded based on coin age spent (coin-days)
-int64 GetProofOfStakeReward(int64 nCoinAge)
+int64 GetProofOfStakeReward_V1(int64 nCoinAge)
 {
     static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
     int64 nSubsidy = nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear;
@@ -974,6 +986,38 @@ int64 GetProofOfStakeReward(int64 nCoinAge)
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRI64d "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
     return nSubsidy;
 }
+
+int64 GetProofOfStakeReward_V2(int64 nCoinAge)
+{
+    static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
+    int64 nSubsidy = nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear;    
+    
+	if (nBestHeight > 49000)
+	{
+		nSubsidy = 500000 * COIN;  // 500,000 coins
+	}
+	
+	else if (nBestHeight > 66280)
+	{
+		nSubsidy = 250000 * COIN;  // 500,000 coins
+	}    
+    
+    if (fDebug && GetBoolArg("-printcreation"))
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRI64d "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
+    return nSubsidy;
+}
+
+int64 GetProofOfStakeReward(int64 nCoinAge)
+{
+	int64_t nReward = 0;
+	if(nTime > FORK_TIME)
+		nReward = GetProofOfStakeRewardV2(nCoinAge);
+	else
+		nReward = GetProofOfStakeRewardV1(nCoinAge);
+	
+	return nReward;
+}
+
 
 static const int64 nTargetTimespan = 1 * 24 * 60 * 60;  // one week
 static const int64 nTargetSpacingWorkMax = 12 * STAKE_TARGET_SPACING; // 2-hour
