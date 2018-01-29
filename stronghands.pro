@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = stronghands
-VERSION = 0.1.2.5
+VERSION = 0.1.5.1
 INCLUDEPATH += src src/json src/qt
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE USE_IPV6
 CONFIG += no_include_pwd
@@ -10,6 +10,7 @@ CONFIG += qt_framework
 QT += core gui network
 CONFIG += link_pkgconfig
 
+USE_QRCODE=1
 
 !windows:!unix {
     CONFIG += static
@@ -325,7 +326,7 @@ TSQM.output = $$TS_DIR/${QMAKE_FILE_BASE}.qm
 TSQM.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN}
 TSQM.CONFIG = no_link
 QMAKE_EXTRA_COMPILERS += TSQM
-PRE_TARGETDEPS += compiler_TSQM_make_all
+#PRE_TARGETDEPS += compiler_TSQM_make_all
 
 # "Other files" to show in Qt Creator
 OTHER_FILES += \

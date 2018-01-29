@@ -138,12 +138,12 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
         return SendCoinsReturn(AmountWithFeeExceedsBalance, nTransactionFee);
     }
 
-    if(total > MAX_MONEY)
+    if(total > ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY))
     {
         return SendCoinsReturn(AmountExceedsMaxMoney);
     }
 
-    if((total + nTransactionFee) > MAX_MONEY)
+    if((total + nTransactionFee) > ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY))
     {
         return SendCoinsReturn(AmountWithFeeExceedsMaxMoney, nTransactionFee);
     }

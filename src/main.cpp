@@ -471,7 +471,7 @@ bool CTransaction::CheckTransaction() const
         // stronghands: enforce minimum output amount
         if ((!txout.IsEmpty()) && txout.nValue < MIN_TXOUT_AMOUNT)
             return DoS(100, error("CTransaction::CheckTransaction() : txout.nValue below minimum"));
-        if (txout.nValue > MAX_MONEY)
+        if (txout.nValue > ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY))
             return DoS(100, error("CTransaction::CheckTransaction() : txout.nValue too high"));
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
@@ -540,12 +540,12 @@ int64 CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree,
     if (nBlockSize != 1 && nNewBlockSize >= MAX_BLOCK_SIZE_GEN/2)
     {
         if (nNewBlockSize >= MAX_BLOCK_SIZE_GEN)
-            return MAX_MONEY;
+            return ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY);
         nMinFee *= MAX_BLOCK_SIZE_GEN / (MAX_BLOCK_SIZE_GEN - nNewBlockSize);
     }
 
     if (!MoneyRange(nMinFee))
-        nMinFee = MAX_MONEY;
+        nMinFee = ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY);
     return nMinFee;
 }
 
@@ -934,7 +934,19 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 
 int64 GetProofOfWorkReward(unsigned int nBits)
 {
-    CBigNum bnSubsidyLimit = MAX_MINT_PROOF_OF_WORK;
+	int64 nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK;  // 9999 coins
+	
+	if (nBestHeight > 589500)
+	{
+		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2 * 2;  // 500,000 coins
+	}
+	
+	else if (nBestHeight > 609500)
+	{
+		nMaxMintProofOfWork = MAX_MINT_PROOF_OF_WORK_2;  // 250,000 coins
+	}
+	
+    CBigNum bnSubsidyLimit = nMaxMintProofOfWork;
     CBigNum bnTarget;
     bnTarget.SetCompact(nBits);
     CBigNum bnTargetLimit = bnProofOfWorkLimit;
@@ -965,7 +977,7 @@ int64 GetProofOfWorkReward(unsigned int nBits)
 }
 
 // stronghands: miner's coin stake is rewarded based on coin age spent (coin-days)
-int64 GetProofOfStakeReward(int64 nCoinAge)
+int64 GetProofOfStakeReward_V1(int64 nCoinAge)
 {
     static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
     int64 nSubsidy = nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear;
@@ -974,6 +986,39 @@ int64 GetProofOfStakeReward(int64 nCoinAge)
         printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRI64d "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
     return nSubsidy;
 }
+
+int64 GetProofOfStakeReward_V2(int64 nCoinAge)
+{
+    static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
+    static int64 nMaxMintProofOfStake = 1500000000 * COIN; // 1 billion coins
+    int64 nSubsidy = min(nMaxMintProofOfStake, (nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear));    
+    
+	if (nBestHeight > 593500)
+	{
+		nSubsidy = 500000 * COIN;  // 500,000 coins
+	}
+	
+	else if (nBestHeight > 609500)
+	{
+		nSubsidy = 250000 * COIN;  // 500,000 coins
+	}    
+    
+    if (fDebug && GetBoolArg("-printcreation"))
+        printf("GetProofOfStakeReward(): create=%s nCoinAge=%" PRI64d "\n", FormatMoney(nSubsidy).c_str(), nCoinAge);
+    return nSubsidy;
+}
+
+int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nTime)
+{
+	int64_t nReward = 0;
+	if(nTime > FORK_TIME)
+		nReward = GetProofOfStakeReward_V2(nCoinAge);
+	else
+		nReward = GetProofOfStakeReward_V1(nCoinAge);
+	
+	return nReward;
+}
+
 
 static const int64 nTargetTimespan = 1 * 24 * 60 * 60;  // one week
 static const int64 nTargetSpacingWorkMax = 12 * STAKE_TARGET_SPACING; // 2-hour
@@ -1341,7 +1386,7 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
             if (!GetCoinAge(txdb, nCoinAge))
                 return error("ConnectInputs() : %s unable to get coin age for coinstake", GetHash().ToString().substr(0,10).c_str());
             int64 nStakeReward = GetValueOut() - nValueIn;
-            if (nStakeReward > GetProofOfStakeReward(nCoinAge) - GetMinFee() + MIN_TX_FEE)
+            if (nStakeReward > GetProofOfStakeReward(nCoinAge, nTime) - GetMinFee() + MIN_TX_FEE)
                 return DoS(100, error("ConnectInputs() : %s stake reward exceeded", GetHash().ToString().substr(0,10).c_str()));
         }
         else
@@ -2754,8 +2799,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrFrom;
         uint64 nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < MIN_PROTO_VERSION)
-        {
+        if (pfrom->nVersion < (GetAdjustedTime() > FORK_TIME ? MIN_PROTO_VERSION_FORK : MIN_PROTO_VERSION))
+                {
             // Since February 20, 2012, the protocol is initiated at version 209,
             // and earlier versions are no longer supported
             printf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
@@ -2830,8 +2875,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         // Ask the first connected node for block updates
         static int nAskedForBlocks = 0;
         if (!pfrom->fClient && !pfrom->fOneShot &&
-            (pfrom->nVersion < NOBLKS_VERSION_START ||
-             pfrom->nVersion >= NOBLKS_VERSION_END) &&
+            (pfrom->nVersion < NOBLKS_VERSION_START || pfrom->nVersion > (GetAdjustedTime() > FORK_TIME ? NOBLKS_VERSION_END_FORK : NOBLKS_VERSION_END)) &&
              (nAskedForBlocks < 1 || vNodes.size() <= 1))
         {
             nAskedForBlocks++;

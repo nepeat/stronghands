@@ -80,7 +80,7 @@ double GetDifficulty(const CBlockIndex* blockindex = NULL)
 int64 AmountFromValue(const Value& value)
 {
     double dAmount = value.get_real();
-    if (dAmount <= 0.0 || dAmount > MAX_MONEY)
+    if (dAmount <= 0.0 || dAmount > ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY))
         throw JSONRPCError(-3, "Invalid amount");
     int64 nAmount = roundint64(dAmount * COIN);
     if (!MoneyRange(nAmount))
@@ -817,6 +817,11 @@ Value sendtoaddress(const Array& params, bool fHelp)
     int64 nAmount = AmountFromValue(params[1]);
     if (nAmount < MIN_TXOUT_AMOUNT)
         throw JSONRPCError(-101, "Send amount too small");
+    if (nAmount > ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY))
+        throw JSONRPCError(-101, "Send amount exceeds MAX_MONEY");
+    if ((nAmount + nTransactionFee) > ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY))
+        throw JSONRPCError(-101, "Send amount plus fee exceeds MAX_MONEY");
+
 
     // Wallet comments
     CWalletTx wtx;
