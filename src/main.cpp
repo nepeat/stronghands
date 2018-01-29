@@ -990,7 +990,7 @@ int64 GetProofOfStakeReward_V1(int64 nCoinAge)
 int64 GetProofOfStakeReward_V2(int64 nCoinAge)
 {
     static int64 nRewardCoinYear = 1200 * CENT;  // creation amount per coin-year
-	static int64 nMaxMintProofOfStake = 1500000000 * COINS; // 1 billion coins
+    static int64 nMaxMintProofOfStake = 1500000000 * COIN; // 1 billion coins
     int64 nSubsidy = min(nMaxMintProofOfStake, (nCoinAge * 33 / (365 * 33 + 8) * nRewardCoinYear));    
     
 	if (nBestHeight > 593500)
@@ -1008,7 +1008,7 @@ int64 GetProofOfStakeReward_V2(int64 nCoinAge)
     return nSubsidy;
 }
 
-int64 GetProofOfStakeReward(int64 nCoinAge)
+int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nTime)
 {
 	int64_t nReward = 0;
 	if(nTime > FORK_TIME)
@@ -1386,7 +1386,7 @@ bool CTransaction::ConnectInputs(CTxDB& txdb, MapPrevTx inputs,
             if (!GetCoinAge(txdb, nCoinAge))
                 return error("ConnectInputs() : %s unable to get coin age for coinstake", GetHash().ToString().substr(0,10).c_str());
             int64 nStakeReward = GetValueOut() - nValueIn;
-            if (nStakeReward > GetProofOfStakeReward(nCoinAge) - GetMinFee() + MIN_TX_FEE)
+            if (nStakeReward > GetProofOfStakeReward(nCoinAge, nTime) - GetMinFee() + MIN_TX_FEE)
                 return DoS(100, error("ConnectInputs() : %s stake reward exceeded", GetHash().ToString().substr(0,10).c_str()));
         }
         else
