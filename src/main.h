@@ -38,7 +38,7 @@ static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 static const int64 MIN_TX_FEE = CENT;
 static const int64 MIN_RELAY_TX_FEE = CENT;
 static const int64 MAX_MONEY = 2000000000 * COIN;
-static const int64 MAX_MONEY_2= 4000000000 * COIN;
+static const int64 MAX_MONEY_2= 40000000000 * COIN;
 static const int64 MAX_MINT_PROOF_OF_WORK = 9999 * COIN;
 static const int64 MAX_MINT_PROOF_OF_WORK_2 = 250000 * COIN;
 
