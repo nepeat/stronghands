@@ -28,6 +28,9 @@ class CInv;
 class CRequestTracker;
 class CNode;
 
+static const unsigned int FORK_TIME = 1518825600; // Saturday, February 17, 2018 12:00:00 AM GMT // 
+static const unsigned int FORK_HEIGHT = 589500;//
+
 static const unsigned int MAX_BLOCK_SIZE = 1000000;
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
 static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
@@ -35,15 +38,19 @@ static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 static const int64 MIN_TX_FEE = CENT;
 static const int64 MIN_RELAY_TX_FEE = CENT;
 static const int64 MAX_MONEY = 2000000000 * COIN;
+static const int64 MAX_MONEY_2= 40000000000 * COIN;
 static const int64 MAX_MINT_PROOF_OF_WORK = 9999 * COIN;
+static const int64 MAX_MINT_PROOF_OF_WORK_2 = 250000 * COIN;
+
 static const int64 MIN_TXOUT_AMOUNT = MIN_TX_FEE;
-inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
+inline bool MoneyRange(int64 nValue) { return (nValue >= 0 && nValue <= ((int)nBestHeight > FORK_HEIGHT ? MAX_MONEY_2 : MAX_MONEY)); }
 static const int COINBASE_MATURITY_PPC = 100;
 // Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp.
 static const int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 static const int STAKE_TARGET_SPACING = 2.5 * 60; // 2.5-minute block spacing
 static const int STAKE_MIN_AGE = 60 * 60 * 24 * 30; // minimum age for coin age 5 days
 static const int STAKE_MAX_AGE = 60 * 60 * 24 * 365 * 65; // stake age of full weight 65 years
+static const int STAKE_MAX_AGE_2 = 60 * 60 * 24 * 120; // stake age of full weight 120 days
 
 #ifdef USE_UPNP
 static const int fHaveUPnP = true;
@@ -116,7 +123,7 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
 bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
 bool CheckProofOfWork(uint256 hash, unsigned int nBits);
 int64 GetProofOfWorkReward(unsigned int nBits);
-int64 GetProofOfStakeReward(int64 nCoinAge);
+int64 GetProofOfStakeReward(int64 nCoinAge, unsigned int nTime);
 unsigned int ComputeMinWork(unsigned int nBase, int64 nTime);
 int GetNumBlocksOfPeers();
 bool IsInitialBlockDownload();
@@ -1782,7 +1789,7 @@ public:
     bool CheckSignature()
     {
         CKey key;
-        if (!key.SetPubKey(ParseHex("04a0a849dd49b113d3179a332dd77715c43be4d0076e2f19e66de23dd707e56630f792f298dfd209bf042bb3561f4af6983f3d81e439737ab0bf7f898fecd21aab")))
+        if (!key.SetPubKey(ParseHex("049b7f7c1e243a0bbdc524bea62f578e9a46b33642d89734e93b747e2ac3f14450e99d90f79755423630b2fb01a1a9d51591035463c781176be9a3382af8e853e3")))
             return error("CAlert::CheckSignature() : SetPubKey failed");
         if (!key.Verify(Hash(vchMsg.begin(), vchMsg.end()), vchSig))
             return error("CAlert::CheckSignature() : verify signature failed");

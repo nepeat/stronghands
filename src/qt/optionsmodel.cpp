@@ -11,11 +11,6 @@ OptionsModel::OptionsModel(QObject *parent) :
     Init();
 }
 
-void OptionsModel::addOverriddenOption(const std::string &option)
-{
-    strOverriddenByCommandLine += QString::fromStdString(option) + "=" + QString::fromStdString(mapArgs[option]) + " ";
-}
-
 void OptionsModel::Init()
 {
     QSettings settings;
@@ -25,6 +20,7 @@ void OptionsModel::Init()
     bDisplayAddresses = settings.value("bDisplayAddresses", false).toBool();
     fMinimizeToTray = settings.value("fMinimizeToTray", false).toBool();
     fMinimizeOnClose = settings.value("fMinimizeOnClose", false).toBool();
+    nTransactionFee = settings.value("nTransactionFee").toLongLong();
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
 
     // These are shared with core bitcoin; we want
@@ -35,12 +31,6 @@ void OptionsModel::Init()
         SoftSetArg("-proxy", settings.value("addrProxy").toString().toStdString());
     if (settings.contains("detachDB"))
         SoftSetBoolArg("-detachdb", settings.value("detachDB").toBool());
-        
-    settings.setValue("nTransactionFee", (qint64)MIN_TX_FEE);
-    nTransactionFee = settings.value("nTransactionFee").toLongLong(); // if -paytxfee is set, this will be overridden later in init.cpp
-    if (mapArgs.count("-paytxfee"))
-        addOverriddenOption("-paytxfee");
-        
 }
 
 bool OptionsModel::Upgrade()
@@ -244,6 +234,11 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
     emit dataChanged(index, index);
 
     return successful;
+}
+
+qint64 OptionsModel::getTransactionFee()
+{
+    return nTransactionFee;
 }
 
 bool OptionsModel::getCoinControlFeatures()

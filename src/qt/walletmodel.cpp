@@ -10,8 +10,6 @@
 #include "walletdb.h" // for BackupWallet
 #include "base58.h"
 
-#include "main.h" // MAX_MONEY
-
 #include <QSet>
 
 WalletModel::WalletModel(CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
@@ -136,16 +134,6 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
     if((total + nTransactionFee) > nBalance)
     {
         return SendCoinsReturn(AmountWithFeeExceedsBalance, nTransactionFee);
-    }
-
-    if(total > MAX_MONEY)
-    {
-        return SendCoinsReturn(AmountExceedsMaxMoney);
-    }
-
-    if((total + nTransactionFee) > MAX_MONEY)
-    {
-        return SendCoinsReturn(AmountWithFeeExceedsMaxMoney, nTransactionFee);
     }
 
     {
