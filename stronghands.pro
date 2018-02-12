@@ -32,8 +32,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
 
 
-BOOST_INCLUDE_PATH = /usr/local/include
-BOOST_LIB_PATH = /usr/local/lib
+BOOST_INCLUDE_PATH = /usr/local/opt/boost@1.57/include
+BOOST_LIB_PATH = /usr/local/opt/boost@1.57/lib
 OPENSSL_LIB_PATH = /usr/local/opt/openssl/lib
 OPENSSL_INCLUDE_PATH = /usr/local/opt/openssl/include
 BDB_LIB_PATH = /usr/local/opt/berkeley-db@4/lib
@@ -371,11 +371,11 @@ isEmpty(BOOST_INCLUDE_PATH) {
 }
 
 isEmpty(QRENCODE_LIB_PATH) {
-    macx:QRENCODE_LIB_PATH = /opt/local/lib
+    macx:QRENCODE_LIB_PATH = /usr/local/lib
 }
 
 isEmpty(QRENCODE_INCLUDE_PATH) {
-    macx:QRENCODE_INCLUDE_PATH = /opt/local/include
+    macx:QRENCODE_INCLUDE_PATH = /usr/local/include
 }
 
 
