@@ -32,6 +32,13 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
 
 
+BOOST_INCLUDE_PATH = /usr/local/include
+BOOST_LIB_PATH = /usr/local/lib
+OPENSSL_LIB_PATH = /usr/local/opt/openssl/lib
+OPENSSL_INCLUDE_PATH = /usr/local/opt/openssl/include
+BDB_LIB_PATH = /usr/local/opt/berkeley-db@4/lib
+BDB_INCLUDE_PATH = /usr/local/opt/berkeley-db@4/include
+
 
 OBJECTS_DIR = build
 MOC_DIR = build
